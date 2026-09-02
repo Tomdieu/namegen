@@ -78,6 +78,38 @@ export const SEOSection: React.FC = () => {
         </div>
       </div>
 
+      {/* Open Source & GitHub Banner */}
+      <div className="bg-[#1A1A1A] text-white rounded-xl p-5 border-2 border-[#1A1A1A] shadow-[4px_4px_0px_0px_#FFD100] flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="space-y-1 text-center md:text-left">
+          <div className="flex items-center justify-center md:justify-start gap-2">
+            <span className="text-base font-black text-[#FFD100]">⭐ Open Source on GitHub</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#FF477E] text-white">MIT</span>
+          </div>
+          <p className="text-xs text-[#E0E0E0] max-w-xl">
+            NameGen is fully open-source at <strong>github.com/Tomdieu/namegen</strong>. Star the repository, report feature ideas, or clone the project locally to build your own word engines.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <a
+            href="https://github.com/Tomdieu/namegen"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-black text-[#1A1A1A] bg-[#FFD100] hover:bg-[#FFE04D] border-2 border-[#FFD100] shadow-[2px_2px_0px_0px_#00D1FF] active:translate-x-[1px] active:translate-y-[1px] transition-all"
+          >
+            <span>Star on GitHub</span>
+            <span>⭐</span>
+          </a>
+          <a
+            href="https://github.com/Tomdieu/namegen/fork"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-black text-white bg-[#333333] hover:bg-[#444444] border-2 border-white/20 transition-colors"
+          >
+            <span>Fork</span>
+          </a>
+        </div>
+      </div>
+
       {/* Frequently Asked Questions (FAQ) with Accordion */}
       <div className="space-y-3 pt-2">
         <h3 className="text-base font-black text-[#1A1A1A] flex items-center gap-2">

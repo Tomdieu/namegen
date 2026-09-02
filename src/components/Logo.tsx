@@ -39,6 +39,18 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true }) => {
             <span className="text-xl sm:text-2xl font-black text-[#1A1A1A] tracking-tight">
               NameGen
             </span>
+            <span className="text-xs font-medium text-[#4A4A4A]">
+              by{' '}
+              <a
+                href="https://ivantomdieu.vercel.app/en"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#1A1A1A] font-extrabold hover:text-[#FF477E] underline decoration-2 underline-offset-2 transition-colors inline-block"
+                title="Tomdieu ivan portfolio"
+              >
+                Tomdieu ivan
+              </a>
+            </span>
             <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded border-2 border-[#1A1A1A] bg-[#FFD100] text-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A]">
               26ⁿ Engine
             </span>

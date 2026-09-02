@@ -30,6 +30,7 @@ import { NameCard } from './components/NameCard';
 import { MeaningModal } from './components/MeaningModal';
 import { SavedNamesDrawer } from './components/SavedNamesDrawer';
 import { MathExplainer } from './components/MathExplainer';
+import { GitHubModal } from './components/GitHubModal';
 import { SEOSection } from './components/SEOSection';
 import { Logo } from './components/Logo';
 
@@ -69,6 +70,7 @@ export default function App() {
   const [selectedNameForMeaning, setSelectedNameForMeaning] = useState<GeneratedName | null>(null);
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   const [isMathOpen, setIsMathOpen] = useState(false);
+  const [isGitHubOpen, setIsGitHubOpen] = useState(false);
 
   // Client filtering & sorting state
   const [searchTerm, setSearchTerm] = useState('');
@@ -266,6 +268,7 @@ export default function App() {
         favoritesCount={favorites.length}
         onOpenFavorites={() => setIsFavoritesOpen(true)}
         onOpenMath={() => setIsMathOpen(true)}
+        onOpenGitHub={() => setIsGitHubOpen(true)}
         onReset={handleReset}
       />
 
@@ -440,20 +443,54 @@ export default function App() {
         currentLength={settings.length}
       />
 
+      {/* GitHub Repository, Star & Clone Modal */}
+      <GitHubModal
+        isOpen={isGitHubOpen}
+        onClose={() => setIsGitHubOpen(false)}
+      />
+
       {/* Enriched Footer with SEO & Brand Details */}
       <footer className="border-t-2 border-[#1A1A1A] bg-white py-8 px-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <div className="flex items-center gap-3">
             <Logo size="sm" showText={false} />
             <div>
-              <p className="text-sm font-black text-[#1A1A1A]">NameGen • 26ⁿ Letter Combinatorics Engine</p>
+              <p className="text-sm font-black text-[#1A1A1A]">
+                NameGen{' '}
+                <span className="font-normal text-xs text-[#4A4A4A]">
+                  by{' '}
+                  <a
+                    href="https://ivantomdieu.vercel.app/en"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold text-[#1A1A1A] hover:text-[#FF477E] underline transition-colors"
+                  >
+                    Tomdieu ivan
+                  </a>
+                </span>
+                {' '}• 26ⁿ Letter Combinatorics Engine
+              </p>
               <p className="text-xs text-[#4A4A4A]">
                 Exploring {formatLargeNumber(26n ** BigInt(settings.length))} theoretical 26-character variations
               </p>
             </div>
           </div>
           <div className="text-xs font-bold text-[#4A4A4A] flex items-center gap-4 flex-wrap justify-center">
-            <span>Free & Open Source</span>
+            <button
+              onClick={() => setIsGitHubOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-white bg-[#1A1A1A] hover:bg-[#333333] border border-[#1A1A1A] transition-colors cursor-pointer"
+            >
+              <span>⭐ GitHub Repository</span>
+            </button>
+            <span>•</span>
+            <a
+              href="https://github.com/Tomdieu/namegen"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#FF477E] transition-colors underline cursor-pointer"
+            >
+              github.com/Tomdieu/namegen
+            </a>
             <span>•</span>
             <button
               onClick={() => setIsMathOpen(true)}

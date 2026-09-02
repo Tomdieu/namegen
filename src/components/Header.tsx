@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Bookmark, Calculator, RotateCcw, Volume2, Layers } from 'lucide-react';
+import { Sparkles, Bookmark, Calculator, RotateCcw, Volume2, Layers, Github } from 'lucide-react';
 import { CombinatoricsStats } from '../types';
 import { Logo } from './Logo';
 
@@ -9,6 +9,7 @@ interface HeaderProps {
   favoritesCount: number;
   onOpenFavorites: () => void;
   onOpenMath: () => void;
+  onOpenGitHub: () => void;
   onReset: () => void;
 }
 
@@ -18,6 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
   favoritesCount,
   onOpenFavorites,
   onOpenMath,
+  onOpenGitHub,
   onReset,
 }) => {
   return (
@@ -30,9 +32,19 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Action Tools */}
           <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
             <button
+              id="github-repo-btn"
+              onClick={onOpenGitHub}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[#1A1A1A] hover:bg-[#333333] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_0px_#FFD100] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
+              title="GitHub Repository"
+            >
+              <Github className="w-3.5 h-3.5" />
+              <span>GitHub</span>
+            </button>
+
+            <button
               id="math-explainer-btn"
               onClick={onOpenMath}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-[#1A1A1A] bg-[#00D1FF] hover:bg-[#33DAFF] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-[#1A1A1A] bg-[#00D1FF] hover:bg-[#33DAFF] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
               title="View Combinatorics Math & Formulas"
             >
               <Calculator className="w-3.5 h-3.5 text-[#1A1A1A]" />
@@ -42,7 +54,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="favorites-toggle-btn"
               onClick={onOpenFavorites}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-[#1A1A1A] bg-[#FFD100] hover:bg-[#FFE04D] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-[#1A1A1A] bg-[#FFD100] hover:bg-[#FFE04D] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
             >
               <Bookmark className="w-3.5 h-3.5 fill-[#1A1A1A] text-[#1A1A1A]" />
               <span>Saved ({favoritesCount})</span>
@@ -51,7 +63,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="reset-settings-btn"
               onClick={onReset}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold text-[#1A1A1A] bg-[#FFF9E6] hover:bg-[#FFF0C2] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold text-[#1A1A1A] bg-[#FFF9E6] hover:bg-[#FFF0C2] border-2 border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
               title="Reset Settings to Default (9 Characters)"
             >
               <RotateCcw className="w-3.5 h-3.5" />
