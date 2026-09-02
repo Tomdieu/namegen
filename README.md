@@ -1,4 +1,4 @@
-# Letter Combination & Name Generator (26ⁿ)
+# NameGen (26ⁿ)
 
 An interactive, combinatorial letter permutation engine and pronounceable name generator built with React 19, TypeScript, Vite, and Tailwind CSS. 
 

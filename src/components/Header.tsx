@@ -31,10 +31,10 @@ export const Header: React.FC<HeaderProps> = ({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-lg sm:text-xl font-black text-[#1A1A1A] tracking-tight">
-                  Letter Combination & Name Generator
+                  NameGen
                 </h1>
                 <span className="text-xs font-bold px-2 py-0.5 rounded border-2 border-[#1A1A1A] bg-[#FFD100] text-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A]">
-                  {length} Chars ({stats.totalFormulaString.split('=')[0].trim()})
+                  26ⁿ Generator
                 </span>
               </div>
               <p className="text-xs font-medium text-[#4A4A4A]">
