@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://namegen.dev/sitemap.xml
+Sitemap: https://namegen-phi.vercel.app/sitemap.xml
