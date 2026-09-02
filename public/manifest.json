@@ -1,0 +1,17 @@
+{
+  "name": "NameGen - 26ⁿ Letter Combination & Name Generator",
+  "short_name": "NameGen",
+  "description": "Generate, explore, and analyze multi-character letter combinations and pronounceable names from the 26 alphabet characters.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF9E6",
+  "theme_color": "#FF477E",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "64x64 128x128 256x256 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

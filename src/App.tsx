@@ -30,6 +30,8 @@ import { NameCard } from './components/NameCard';
 import { MeaningModal } from './components/MeaningModal';
 import { SavedNamesDrawer } from './components/SavedNamesDrawer';
 import { MathExplainer } from './components/MathExplainer';
+import { SEOSection } from './components/SEOSection';
+import { Logo } from './components/Logo';
 
 const LOCAL_STORAGE_FAVORITES_KEY = 'name_generator_saved_favorites_v1';
 
@@ -401,6 +403,9 @@ export default function App() {
             })}
           </div>
         )}
+
+        {/* SEO Guide & FAQ Section */}
+        <SEOSection />
       </main>
 
       {/* Meaning & Acrostic Inspector Modal */}
@@ -435,11 +440,36 @@ export default function App() {
         currentLength={settings.length}
       />
 
-      {/* Minimal Footer */}
-      <footer className="border-t-2 border-[#1A1A1A] bg-white py-4 text-center text-xs font-bold text-[#1A1A1A]">
-        <p>
-          26-Character Permutations & Name Combinator Engine • Exploring {formatLargeNumber(26n ** BigInt(settings.length))} Theoretical Variations
-        </p>
+      {/* Enriched Footer with SEO & Brand Details */}
+      <footer className="border-t-2 border-[#1A1A1A] bg-white py-8 px-4">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+          <div className="flex items-center gap-3">
+            <Logo size="sm" showText={false} />
+            <div>
+              <p className="text-sm font-black text-[#1A1A1A]">NameGen • 26ⁿ Letter Combinatorics Engine</p>
+              <p className="text-xs text-[#4A4A4A]">
+                Exploring {formatLargeNumber(26n ** BigInt(settings.length))} theoretical 26-character variations
+              </p>
+            </div>
+          </div>
+          <div className="text-xs font-bold text-[#4A4A4A] flex items-center gap-4 flex-wrap justify-center">
+            <span>Free & Open Source</span>
+            <span>•</span>
+            <button
+              onClick={() => setIsMathOpen(true)}
+              className="hover:text-[#FF477E] transition-colors underline cursor-pointer"
+            >
+              26ⁿ Math Formula
+            </button>
+            <span>•</span>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="hover:text-[#FF477E] transition-colors underline cursor-pointer"
+            >
+              Back to Top ↑
+            </button>
+          </div>
+        </div>
       </footer>
     </div>
   );
