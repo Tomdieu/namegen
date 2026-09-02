@@ -1,0 +1,6 @@
+{
+  "name": "Letter Combination & Name Generator",
+  "description": "Generate, explore, and analyze multi-character letter combinations and pronounceable names from the 26 alphabet characters.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
