@@ -33,6 +33,7 @@ import { MathExplainer } from './components/MathExplainer';
 import { GitHubModal } from './components/GitHubModal';
 import { SEOSection } from './components/SEOSection';
 import { Logo } from './components/Logo';
+import { Analytics } from '@vercel/analytics/react';
 
 const LOCAL_STORAGE_FAVORITES_KEY = 'name_generator_saved_favorites_v1';
 
@@ -508,6 +509,8 @@ export default function App() {
           </div>
         </div>
       </footer>
+      {/* Vercel Analytics */}
+      <Analytics />
     </div>
   );
 }
