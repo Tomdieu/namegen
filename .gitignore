@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Expo local dev state
+.expo/
