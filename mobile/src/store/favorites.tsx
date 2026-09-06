@@ -11,6 +11,7 @@ interface FavoritesContextValue {
   /** Toggles a favorite. Returns true when the name was added, false when removed. */
   toggleFavorite: (name: GeneratedName) => boolean;
   clearFavorites: () => void;
+  updateNotes: (id: string, notes: string) => void;
 }
 
 const FavoritesContext = createContext<FavoritesContextValue | null>(null);
@@ -68,9 +69,17 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     void persist([]);
   }, [persist]);
 
+  const updateNotes = useCallback(
+    (id: string, notes: string) => {
+      const updated = favorites.map((f) => (f.id === id ? { ...f, notes } : f));
+      void persist(updated);
+    },
+    [favorites, persist]
+  );
+
   const value = useMemo(
-    () => ({ favorites, loaded, isFavorite, toggleFavorite, clearFavorites }),
-    [favorites, loaded, isFavorite, toggleFavorite, clearFavorites]
+    () => ({ favorites, loaded, isFavorite, toggleFavorite, clearFavorites, updateNotes }),
+    [favorites, loaded, isFavorite, toggleFavorite, clearFavorites, updateNotes]
   );
 
   return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
