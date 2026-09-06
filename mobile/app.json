@@ -7,9 +7,6 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "scheme": "namegen",
-    "androidStatusBar": {
-      "barStyle": "dark-content"
-    },
     "plugins": [
       "expo-router",
       [
@@ -19,6 +16,13 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#FFD100"
+        }
+      ],
+      [
+        "expo-status-bar",
+        {
+          "style": "dark",
+          "hidden": false
         }
       ]
     ],
