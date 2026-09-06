@@ -3,22 +3,80 @@ import { Stack, SplashScreen } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { FavoritesProvider } from '../src/store/favorites';
+import { FiltersProvider } from '../src/store/filters';
+import { PreferencesProvider, usePreferences } from '../src/store/preferences';
+import { brand } from '../src/theme';
 
 SplashScreen.preventAutoHideAsync();
 
-const BRAND_YELLOW = '#FFD100';
-const INK = '#1A1A1A';
-const CREAM = '#FFF9E6';
+function ThemedRoot() {
+  const { colors, t } = usePreferences();
 
-const modalHeaderOptions = {
-  presentation: 'modal' as const,
-  headerShown: true,
-  headerStyle: { backgroundColor: BRAND_YELLOW },
-  headerTitleStyle: { fontWeight: '900' as const, color: INK },
-  headerTintColor: INK,
-  headerShadowVisible: false,
-  contentStyle: { backgroundColor: CREAM },
-};
+  return (
+    <>
+      <StatusBar style={colors.statusBarStyle}  />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.bg },
+        }}
+      >
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="filters"
+          options={{
+            presentation: 'formSheet',
+            headerShown: true,
+            title: t('sheetFilters'),
+            headerStyle: { backgroundColor: brand.yellow },
+            headerTitleStyle: { fontWeight: '900', color: brand.ink },
+            headerTintColor: brand.ink,
+            headerShadowVisible: false,
+            contentStyle: { backgroundColor: colors.bg },
+            sheetGrabberVisible: true,
+            sheetCornerRadius: 16,
+            sheetExpandsWhenScrolledToEdge: true,
+            sheetAllowedDetents: [0.85],
+          }}
+        />
+        <Stack.Screen
+          name="math"
+          options={{
+            presentation: 'formSheet',
+            headerShown: true,
+            title: t('sheetMath'),
+            headerStyle: { backgroundColor: brand.yellow },
+            headerTitleStyle: { fontWeight: '900', color: brand.ink },
+            headerTintColor: brand.ink,
+            headerShadowVisible: false,
+            contentStyle: { backgroundColor: colors.bg },
+            sheetGrabberVisible: true,
+            sheetCornerRadius: 16,
+            sheetExpandsWhenScrolledToEdge: true,
+            sheetAllowedDetents: 'fitToContents',
+          }}
+        />
+        <Stack.Screen
+          name="meaning"
+          options={{
+            presentation: 'formSheet',
+            headerShown: true,
+            title: t('sheetMeaning'),
+            headerStyle: { backgroundColor: brand.yellow },
+            headerTitleStyle: { fontWeight: '900', color: brand.ink },
+            headerTintColor: brand.ink,
+            headerShadowVisible: false,
+            contentStyle: { backgroundColor: colors.bg },
+            sheetGrabberVisible: true,
+            sheetCornerRadius: 16,
+            sheetExpandsWhenScrolledToEdge: true,
+            sheetAllowedDetents: 'fitToContents',
+          }}
+        />
+      </Stack>
+    </>
+  );
+}
 
 export default function RootLayout() {
   useEffect(() => {
@@ -27,34 +85,13 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <FavoritesProvider>
-        <StatusBar style="dark" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: CREAM },
-          }}
-        >
-          <Stack.Screen name="index" />
-          <Stack.Screen
-            name="favorites"
-            options={{ ...modalHeaderOptions, title: 'Saved Names' }}
-          />
-          <Stack.Screen
-            name="math"
-            options={{ ...modalHeaderOptions, title: '26ⁿ Combinatorics' }}
-          />
-          <Stack.Screen
-            name="meaning"
-            options={{
-              presentation: 'transparentModal',
-              animation: 'fade',
-              headerShown: false,
-              contentStyle: { backgroundColor: 'transparent' },
-            }}
-          />
-        </Stack>
-      </FavoritesProvider>
+      <PreferencesProvider>
+        <FavoritesProvider>
+          <FiltersProvider>
+            <ThemedRoot />
+          </FiltersProvider>
+        </FavoritesProvider>
+      </PreferencesProvider>
     </SafeAreaProvider>
   );
 }
