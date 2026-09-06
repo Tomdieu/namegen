@@ -9,3 +9,7 @@ coverage/
 
 # Expo local dev state
 .expo/
+
+# Expo native prebuild output (managed workflow)
+/mobile/android/
+/mobile/ios/
