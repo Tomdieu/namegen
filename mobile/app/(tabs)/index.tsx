@@ -304,12 +304,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Slim header */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={styles.logoBadge}>
-            <Text style={styles.logoText}>26ⁿ</Text>
-          </View>
-          <Text style={styles.appTitle}>NameGen</Text>
-        </View>
+        <Text style={styles.appTitle}>NameGen</Text>
 
         <View style={styles.headerRight}>
           <TouchableOpacity
@@ -319,22 +314,24 @@ export default function HomeScreen() {
               router.push('/favorites');
             }}
           >
-            <View style={{flexDirection:"row",alignItems:"center"}}>
-              <MaterialIcons name='star' size={14} color={brand.ink} />
-              <Text style={styles.headerBtnText}> {favorites.length}</Text>
-            </View>
+            <MaterialIcons name='star' size={18} color={brand.ink} />
+            {favorites.length > 0 && (
+              <View style={styles.favBadge}>
+                <Text style={styles.favBadgeText}>{favorites.length}</Text>
+              </View>
+            )}
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.headerBtn, { backgroundColor: brand.blue }]}
             onPress={openMath}
           >
-            <Text style={styles.headerBtnText}>26ⁿ</Text>
+            <Text style={styles.mathBtnText}>26n</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.headerBtn, { backgroundColor: colors.surfaceAlt }]}
             onPress={handleReset}
           >
-            <MaterialIcons name="restart-alt" size={16} color={colors.text} />
+            <MaterialIcons name="restart-alt" size={18} color={colors.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -721,33 +718,38 @@ const createStyles = (c: Palette, bottomInset: number) =>
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingHorizontal: 16,
-      paddingVertical: 10,
+      paddingVertical: 12,
       backgroundColor: c.surface,
       borderBottomWidth: 2,
       borderBottomColor: c.text,
     },
-    headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    logoBadge: {
-      width: 36,
-      height: 36,
-      borderRadius: 8,
-      backgroundColor: brand.ink,
+    appTitle: { fontSize: 20, fontWeight: '900', color: c.text, letterSpacing: -0.5 },
+    headerRight: { flexDirection: 'row', gap: 8 },
+    headerBtn: {
+      width: 40,
+      height: 40,
+      borderRadius: 12,
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 2,
-      borderColor: brand.ink,
-    },
-    logoText: { color: brand.yellow, fontSize: 15, fontWeight: '900' },
-    appTitle: { fontSize: 19, fontWeight: '900', color: c.text },
-    headerRight: { flexDirection: 'row', gap: 8 },
-    headerBtn: {
-      paddingHorizontal: 10,
-      paddingVertical: 6,
-      borderRadius: 8,
-      borderWidth: 2,
       borderColor: c.text,
     },
-    headerBtnText: { fontSize: 12, fontWeight: '900', color: brand.ink },
+    favBadge: {
+      position: 'absolute',
+      top: -6,
+      right: -6,
+      minWidth: 20,
+      height: 20,
+      borderRadius: 10,
+      backgroundColor: brand.pink,
+      borderWidth: 1.5,
+      borderColor: brand.yellow,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 4,
+    },
+    favBadgeText: { color: '#FFFFFF', fontSize: 10, fontWeight: '900' },
+    mathBtnText: { fontSize: 12, fontWeight: '900', color: brand.ink },
     toast: {
       backgroundColor: brand.ink,
       paddingVertical: 8,
