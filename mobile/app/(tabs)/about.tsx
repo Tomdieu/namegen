@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { usePreferences } from '../../src/store/preferences';
+import { MaterialIcons } from '@expo/vector-icons';
 import { hapticLight, hapticSelect } from '../../src/utils/haptics';
 import { brand, type Palette, type Locale, type ThemeMode } from '../../src/theme';
 
@@ -34,9 +35,9 @@ export default function AboutScreen() {
   };
 
   const stats = [
-    { label: t('secLanguage'), value: locale.toUpperCase() },
-    { label: t('secTheme'), value: theme === 'light' ? t('themeLight') : t('themeDark') },
-    { label: 'Mode', value: 'Playful' },
+    { icon: 'translate' as keyof typeof MaterialIcons.glyphMap, label: t('secLanguage'), value: locale.toUpperCase() },
+    { icon: (theme === 'light' ? 'light-mode' : 'dark-mode') as keyof typeof MaterialIcons.glyphMap, label: t('secTheme'), value: theme === 'light' ? t('themeLight') : t('themeDark') },
+    { icon: 'auto-awesome' as keyof typeof MaterialIcons.glyphMap, label: 'Mode', value: 'Playful' },
   ];
 
   return (
@@ -60,6 +61,7 @@ export default function AboutScreen() {
           <View style={styles.statsRow}>
             {stats.map((item) => (
               <View key={item.label} style={styles.statCard}>
+                <MaterialIcons name={item.icon} size={16} color={brand.pink} />
                 <Text style={styles.statLabel}>{item.label}</Text>
                 <Text style={styles.statValue}>{item.value}</Text>
               </View>
@@ -98,22 +100,24 @@ export default function AboutScreen() {
               style={[styles.optionChip, theme === 'light' && styles.optionChipActive]}
               onPress={() => pickTheme('light')}
             >
-              <Text
-                style={[styles.optionChipText, theme === 'light' && styles.optionChipTextActive]}
-              >
-                {t('themeLight')}
-              </Text>
+              <View style={{flexDirection:'row',alignItems:'center',gap:6}}>
+                <MaterialIcons name="light-mode" size={14} color={theme === 'light' ? brand.ink : colors.text} />
+                <Text style={[styles.optionChipText, theme === 'light' && styles.optionChipTextActive]}>
+                  {t('themeLight')}
+                </Text>
+              </View>
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.9}
               style={[styles.optionChip, theme === 'dark' && styles.optionChipActive]}
               onPress={() => pickTheme('dark')}
             >
-              <Text
-                style={[styles.optionChipText, theme === 'dark' && styles.optionChipTextActive]}
-              >
-                {t('themeDark')}
-              </Text>
+              <View style={{flexDirection:'row',alignItems:'center',gap:6}}>
+                <MaterialIcons name="dark-mode" size={14} color={theme === 'dark' ? brand.ink : colors.text} />
+                <Text style={[styles.optionChipText, theme === 'dark' && styles.optionChipTextActive]}>
+                  {t('themeDark')}
+                </Text>
+              </View>
             </TouchableOpacity>
           </View>
         </View>
@@ -126,7 +130,10 @@ export default function AboutScreen() {
             style={[styles.linkBtn, styles.primaryBtn]}
             onPress={() => openURL('https://ivantomdieu.vercel.app/en')}
           >
-            <Text style={styles.linkBtnText}>{t('visitSite')}</Text>
+            <View style={{flexDirection:'row',alignItems:'center',gap:8}}>
+              <MaterialIcons name="language" size={16} color={brand.ink} />
+              <Text style={styles.linkBtnText}>{t('visitSite')}</Text>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -134,7 +141,10 @@ export default function AboutScreen() {
             style={[styles.linkBtn, styles.secondaryBtn]}
             onPress={() => openURL('https://github.com/Tomdieu/namegen')}
           >
-            <Text style={[styles.linkBtnText, styles.secondaryBtnText]}>{t('starGithub')}</Text>
+            <View style={{flexDirection:'row',alignItems:'center',gap:8}}>
+              <MaterialIcons name="star" size={16} color={brand.yellow} />
+              <Text style={[styles.linkBtnText, styles.secondaryBtnText]}>{t('starGithub')}</Text>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -145,7 +155,10 @@ export default function AboutScreen() {
               router.push({ pathname: '/math', params: { length: '9' } });
             }}
           >
-            <Text style={styles.linkBtnText}>{t('aboutMath')}</Text>
+            <View style={{flexDirection:'row',alignItems:'center',gap:8}}>
+              <MaterialIcons name="calculate" size={16} color={brand.ink} />
+              <Text style={styles.linkBtnText}>{t('aboutMath')}</Text>
+            </View>
           </TouchableOpacity>
         </View>
 

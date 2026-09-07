@@ -62,6 +62,10 @@ export default function HomeScreen() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [editingSlot, setEditingSlot] = useState<number | null>(null);
 
+  const [step, setStep] = useState(0);
+  const [hasGenerated, setHasGenerated] = useState(false);
+  const [generatedFingerprint, setGeneratedFingerprint] = useState<string | null>(null);
+
   const {
     searchTerm,
     startsWithFilter,
@@ -94,6 +98,8 @@ export default function HomeScreen() {
     hapticMedium();
     const generated = generateNamesBatch(settings);
     setNames(enrichWithFavorites(generated));
+    setHasGenerated(true);
+    setGeneratedFingerprint(setupFingerprint);
   };
 
   const handleGenerateMore = () => {
@@ -108,10 +114,6 @@ export default function HomeScreen() {
       return [...prev, ...enrichWithFavorites(fresh.length > 0 ? fresh : generated)];
     });
   };
-
-  useEffect(() => {
-    handleGenerate();
-  }, [settings.length, settings.mode, settings.casing]);
 
   const updateLength = (len: number) => {
     const clamped = Math.min(26, Math.max(3, len));
@@ -148,6 +150,9 @@ export default function HomeScreen() {
     setSettings(DEFAULT_SETTINGS);
     setEditingSlot(null);
     resetFilters();
+    setStep(0);
+    setHasGenerated(false);
+    setGeneratedFingerprint(null);
     showToast(t('toastReset'));
   };
 
@@ -277,6 +282,24 @@ export default function HomeScreen() {
     { id: 'pure_random', label: t('modeRandom') },
   ];
 
+  const wizardSteps = [
+    { label: t('wizBasics'), icon: 'straighten' as const },
+    { label: t('wizStyle'), icon: 'palette' as const },
+    { label: t('wizSlots'), icon: 'grid-on' as const },
+    { label: t('wizReview'), icon: 'fact-check' as const },
+  ];
+
+  const setupFingerprint = useMemo(
+    () => `${settings.length}|${settings.batchSize}|${settings.casing}|${settings.mode}|${settings.slots.length}`,
+    [settings.length, settings.batchSize, settings.casing, settings.mode, settings.slots.length]
+  );
+  const setupDirty = hasGenerated && generatedFingerprint !== null && generatedFingerprint !== setupFingerprint;
+
+  const goStep = (next: number) => {
+    hapticSelect();
+    setStep(Math.max(0, Math.min(3, next)));
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Slim header */}
@@ -297,8 +320,8 @@ export default function HomeScreen() {
             }}
           >
             <View style={{flexDirection:"row",alignItems:"center"}}>
-              <MaterialIcons name='star' />
-            <Text style={styles.headerBtnText}> {favorites.length}</Text>
+              <MaterialIcons name='star' size={14} color={brand.ink} />
+              <Text style={styles.headerBtnText}> {favorites.length}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -311,15 +334,14 @@ export default function HomeScreen() {
             style={[styles.headerBtn, { backgroundColor: colors.surfaceAlt }]}
             onPress={handleReset}
           >
-            <Text style={[styles.headerBtnText, { color: colors.text }]}>↺</Text>
-
+            <MaterialIcons name="restart-alt" size={16} color={colors.text} />
           </TouchableOpacity>
         </View>
       </View>
 
       {toastMessage && (
         <View style={styles.toast}>
-          <Text style={styles.toastText}>✓ {toastMessage}</Text>
+          <Text style={styles.toastText}>{toastMessage}</Text>
         </View>
       )}
 
@@ -340,345 +362,328 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         <View style={styles.controlBox}>
-          <View style={styles.controlSection}>
-            <View style={styles.sectionTitleRow}>
-              <Text style={styles.controlTitle}>{t('secLength', { length: settings.length })}</Text>
-              <Text style={styles.badgeSmall}>{t('defaultBadge')}</Text>
-            </View>
-
-            <View style={styles.stepperRow}>
-              <TouchableOpacity
-                style={styles.stepperBtn}
-                onPress={() => {
-                  hapticSelect();
-                  updateLength(settings.length - 1);
-                }}
-              >
-                <Text style={styles.stepperBtnText}>-</Text>
-              </TouchableOpacity>
-
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.lengthChipsContainer}
-              >
-                {[4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16].map((len) => (
-                  <TouchableOpacity
-                    key={len}
-                    onPress={() => {
-                      hapticSelect();
-                      updateLength(len);
-                    }}
-                    style={[styles.lengthChip, settings.length === len && styles.lengthChipActive]}
-                  >
-                    <Text
-                      style={[styles.lengthChipText, settings.length === len && styles.lengthChipTextActive]}
-                    >
-                      {len}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-
-              <TouchableOpacity
-                style={styles.stepperBtn}
-                onPress={() => {
-                  hapticSelect();
-                  updateLength(settings.length + 1);
-                }}
-              >
-                <Text style={styles.stepperBtnText}>+</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.controlSection}>
-            <Text style={styles.controlTitle}>{t('secBatch')}</Text>
-            <View style={styles.chipRow}>
-              {BATCH_SIZES.map((size) => (
-                <TouchableOpacity
-                  key={size}
-                  onPress={() => {
-                    hapticSelect();
-                    setSettings((p) => ({ ...p, batchSize: size }));
-                  }}
-                  style={[styles.optionChip, settings.batchSize === size && styles.optionChipActiveBlue]}
-                >
-                  <Text
-                    style={[styles.optionChipText, settings.batchSize === size && styles.optionChipTextOnColor]}
-                  >
-                    {size}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <View style={styles.controlSection}>
-            <Text style={styles.controlTitle}>{t('secCasing')}</Text>
-            <View style={styles.chipRow}>
-              {CASINGS.map((opt) => (
-                <TouchableOpacity
-                  key={opt.id}
-                  onPress={() => {
-                    hapticSelect();
-                    setSettings((p) => ({ ...p, casing: opt.id }));
-                  }}
-                  style={[styles.optionChip, settings.casing === opt.id && styles.optionChipActiveYellow]}
-                >
-                  <Text
-                    style={[styles.optionChipText, settings.casing === opt.id && styles.optionChipTextOnColor]}
-                  >
-                    {opt.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <View style={styles.controlSection}>
-            <Text style={styles.controlTitle}>{t('secMode')}</Text>
-            <View style={styles.modeRow}>
-              {modes.map((m) => (
-                <TouchableOpacity
-                  key={m.id}
-                  onPress={() => {
-                    hapticSelect();
-                    setSettings((p) => ({ ...p, mode: m.id as GenerationMode }));
-                  }}
-                  style={[styles.modeBtn, settings.mode === m.id && styles.modeBtnActive]}
-                >
-                  <Text style={[styles.modeBtnText, settings.mode === m.id && styles.optionChipTextOnColor]}>
-                    {m.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <View style={styles.controlSection}>
-            <View style={styles.sectionTitleRow}>
-              <Text style={styles.controlTitle}>{t('secSlots')}</Text>
-              <TouchableOpacity
-                onPress={() => {
-                  hapticLight();
-                  setSettings((p) => ({ ...p, slots: [] }));
-                }}
-              >
-                <Text style={styles.resetLink}>{t('clearAll')}</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.presetRow}>
-              <TouchableOpacity
-                style={[styles.presetBtn, { backgroundColor: colors.surfaceAlt }]}
-                onPress={() => handleApplyPreset('alternating')}
-              >
-                <Text style={styles.presetBtnText}>{t('presetFlow')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.presetBtn, { backgroundColor: brand.blue }]}
-                onPress={() => handleApplyPreset('melodic')}
-              >
-                <Text style={[styles.presetBtnText, { color: brand.ink }]}>
-                  {t('presetMelodic', { length: settings.length })}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.slotsRow}>
-              {Array.from({ length: settings.length }).map((_, idx) => {
-                const constraint = settings.slots.find((s) => s.index === idx);
-                const currentType = constraint ? constraint.type : 'any';
-                const isEditing = editingSlot === idx;
-
-                return (
-                  <TouchableOpacity
-                    key={idx}
-                    onPress={() => {
-                      hapticSelect();
-                      setEditingSlot(isEditing ? null : idx);
-                    }}
-                    style={[
-                      styles.slotBox,
-                      currentType === 'vowel' && { backgroundColor: brand.yellow },
-                      currentType === 'consonant' && { backgroundColor: brand.blue },
-                      currentType === 'exact' && { backgroundColor: brand.green },
-                      isEditing && styles.slotBoxEditing,
-                    ]}
-                  >
-                    <Text style={styles.slotIndex}>#{idx + 1}</Text>
-                    <Text
-                      style={[styles.slotType, currentType !== 'any' && styles.slotTypeOnColor]}
-                    >
-                      {currentType === 'any'
-                        ? 'ANY'
-                        : currentType === 'vowel'
-                          ? 'VOWEL'
-                          : currentType === 'consonant'
-                            ? 'CONS'
-                            : (constraint?.exactChar ?? '?').toUpperCase()}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-
-            {editingSlot !== null && editingSlot < settings.length && (
-              <View style={styles.slotEditor}>
-                <View style={styles.slotEditorHeader}>
-                  <Text style={styles.slotEditorTitle}>
-                    {t('editorPosition', { index: editingSlot + 1, total: settings.length })}
-                  </Text>
-                  <TouchableOpacity onPress={() => setEditingSlot(null)}>
-                    <Text style={styles.slotEditorClose}>✕</Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.slotRuleRow}>
-                  {(
-                    [
-                      { id: 'any', label: t('ruleAny') },
-                      { id: 'vowel', label: t('ruleVowel') },
-                      { id: 'consonant', label: t('ruleCons') },
-                    ] as { id: SlotConstraintType; label: string }[]
-                  ).map((rule) => {
-                    const active =
-                      (settings.slots.find((s) => s.index === editingSlot)?.type ?? 'any') === rule.id;
-                    return (
-                      <TouchableOpacity
-                        key={rule.id}
-                        style={[styles.slotRuleBtn, active && styles.slotRuleBtnActive]}
-                        onPress={() => setSlotRule(editingSlot, rule.id)}
-                      >
-                        <Text style={[styles.slotRuleText, active && styles.optionChipTextOnColor]}>
-                          {rule.label}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-
-                <Text style={styles.slotEditorSubtitle}>{t('pinExact')}</Text>
-                <View style={styles.letterGrid}>
-                  {'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((letter) => {
-                    const slot = settings.slots.find((s) => s.index === editingSlot);
-                    const isExact = slot?.type === 'exact' && slot.exactChar?.toUpperCase() === letter;
-                    return (
-                      <TouchableOpacity
-                        key={letter}
-                        style={[styles.letterKey, isExact && styles.letterKeyActive]}
-                        onPress={() => setSlotRule(editingSlot, 'exact', letter)}
-                      >
-                        <Text style={styles.letterKeyText}>{letter}</Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
+          <View style={styles.wizTopRow}>
+            <Text style={styles.wizStepOf}>{t('wizStepOf', { cur: step + 1, total: 4 })}</Text>
+            {hasGenerated && (
+              <View style={styles.wizDoneBadge}>
+                <MaterialIcons name="check-circle" size={12} color={brand.ink} />
+                <Text style={styles.wizDoneBadgeText}>{filteredNames.length}</Text>
               </View>
             )}
           </View>
-
-          <TouchableOpacity style={styles.generateBtn} activeOpacity={0.85} onPress={handleGenerate}>
-            <Text style={styles.generateBtnText}>{t('generateBtn', { n: settings.batchSize })}</Text>
-          </TouchableOpacity>
-          <View style={styles.generateRow}>
-            <TouchableOpacity
-              style={[styles.secondaryBtn, { backgroundColor: brand.green }]}
-              activeOpacity={0.85}
-              onPress={handleGenerateMore}
-            >
-              <Text style={styles.secondaryBtnText}>{t('nextSet')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.secondaryBtn, { backgroundColor: "#ffff" }]}
-              activeOpacity={0.85}
-              onPress={handleGenerate}
-            >
-              <Text style={styles.secondaryBtnText}>{t('reroll')}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.resultsHeader}>
-          <Text style={styles.resultsCount}>
-            {t('resultsCount', { n: filteredNames.length, len: settings.length })}
-          </Text>
-          <TouchableOpacity
-            style={[styles.copyAllBtn, filteredNames.length === 0 && { opacity: 0.4 }]}
-            disabled={filteredNames.length === 0}
-            onPress={handleCopyAllVisible}
-          >
-            <Text style={styles.copyAllBtnText}>
-              {copiedBatch ? t('copiedTick') : t('copyAll')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {filteredNames.length === 0 ? (
-          <View style={styles.emptyBox}>
-            <Text style={styles.emptyEmoji}>🔍</Text>
-            <Text style={styles.emptyTitle}>{t('emptyTitle')}</Text>
-            <Text style={styles.emptySubtext}>{t('emptySub')}</Text>
-            <TouchableOpacity style={styles.emptyCta} onPress={handleGenerate}>
-              <Text style={styles.emptyCtaText}>{t('emptyCta')}</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.namesGrid}>
-            {filteredNames.map((item) => (
-              <View key={item.id} style={styles.nameCard}>
-                <View style={styles.cardTopRow}>
-                  <View style={styles.scoreBadge}>
-                    <Text style={styles.scoreText}>
-                      {item.pronounceabilityScore}
-                      {t('scoreSuffix')}
-                    </Text>
+          <View style={styles.wizStepsRow}>
+            {wizardSteps.map((s, i) => {
+              const active = i === step;
+              const done = hasGenerated || i < step;
+              return (
+                <TouchableOpacity key={s.label} style={[styles.wizStep, active && styles.wizStepActive]} onPress={() => goStep(i)}>
+                  <View style={[styles.wizStepNum, active && styles.wizStepNumActive, !active && done && styles.wizStepNumDone]}>
+                    {done && !active ? <MaterialIcons name="check" size={12} color={brand.ink} /> : <Text style={[styles.wizStepNumText, active && styles.wizStepNumTextActive]}>{i + 1}</Text>}
                   </View>
-                  <View style={styles.vowelRatioBadge}>
-                    <Text style={styles.vowelRatioText}>
-                      {item.vowelCount}V / {item.consonantCount}C
-                    </Text>
-                  </View>
+                  <MaterialIcons name={s.icon} size={14} color={active ? brand.ink : colors.subtext} />
+                  <Text style={[styles.wizStepLabel, active && styles.wizStepLabelActive]}>{s.label}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          <View style={styles.wizProgressTrack}>
+            <View style={[styles.wizProgressBar, { width: `${((step + 1) / 4) * 100}%` }]} />
+          </View>
+
+          {step === 0 && (
+            <>
+              <View style={styles.controlSection}>
+                <View style={styles.sectionTitleRow}>
+                  <Text style={styles.controlTitle}>{t('secLength', { length: settings.length })}</Text>
+                  <Text style={styles.badgeSmall}>{t('defaultBadge')}</Text>
                 </View>
-
-                <Text style={styles.nameWord}>{item.text}</Text>
-
-                {item.syllables && item.syllables.length > 1 && (
-                  <Text style={styles.syllablesText}>{item.syllables.join(' • ')}</Text>
-                )}
-
-                {item.embeddedWords && item.embeddedWords.length > 0 && (
-                  <View style={styles.embeddedRow}>
-                    <Text style={styles.embeddedTag}>
-                      {t('contains', { words: item.embeddedWords.join(', ') })}
-                    </Text>
-                  </View>
-                )}
-
-                <View style={styles.cardActions}>
-                  <TouchableOpacity style={styles.copyBtn} onPress={() => copyToClipboard(item.text)}>
-                    <Text style={styles.copyBtnText}>{t('copyBtn')}</Text>
+                <View style={styles.stepperRow}>
+                  <TouchableOpacity style={styles.stepperBtn} onPress={() => { hapticSelect(); updateLength(settings.length - 1); }}>
+                    <Text style={styles.stepperBtnText}>-</Text>
                   </TouchableOpacity>
-
-                  <TouchableOpacity style={styles.actionIconBtn} onPress={() => onSpeak(item)}>
-                    <Text style={styles.actionIconText}>{speakingId === item.id ? '⏹' : '🔊'}</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[styles.actionIconBtn, item.isFavorite && styles.favActiveBtn]}
-                    onPress={() => onToggleFavorite(item)}
-                  >
-                    <Text style={styles.actionIconText}>{item.isFavorite ? '★' : '☆'}</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity style={styles.actionIconBtn} onPress={() => openMeaning(item)}>
-                    <Text style={styles.actionIconText}>✨</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.lengthChipsContainer}>
+                    {[4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16].map((len) => (
+                      <TouchableOpacity key={len} onPress={() => { hapticSelect(); updateLength(len); }} style={[styles.lengthChip, settings.length === len && styles.lengthChipActive]}>
+                        <Text style={[styles.lengthChipText, settings.length === len && styles.lengthChipTextActive]}>{len}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                  <TouchableOpacity style={styles.stepperBtn} onPress={() => { hapticSelect(); updateLength(settings.length + 1); }}>
+                    <Text style={styles.stepperBtnText}>+</Text>
                   </TouchableOpacity>
                 </View>
               </View>
-            ))}
+
+              <View style={styles.controlSection}>
+                <Text style={styles.controlTitle}>{t('secBatch')}</Text>
+                <View style={styles.chipRow}>
+                  {BATCH_SIZES.map((size) => (
+                    <TouchableOpacity key={size} onPress={() => { hapticSelect(); setSettings((p) => ({ ...p, batchSize: size })); }} style={[styles.optionChip, settings.batchSize === size && styles.optionChipActiveBlue]}>
+                      <Text style={[styles.optionChipText, settings.batchSize === size && styles.optionChipTextOnColor]}>{size}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.controlSection}>
+                <Text style={styles.controlTitle}>{t('secCasing')}</Text>
+                <View style={styles.chipRow}>
+                  {CASINGS.map((opt) => (
+                    <TouchableOpacity key={opt.id} onPress={() => { hapticSelect(); setSettings((p) => ({ ...p, casing: opt.id })); }} style={[styles.optionChip, settings.casing === opt.id && styles.optionChipActiveYellow]}>
+                      <Text style={[styles.optionChipText, settings.casing === opt.id && styles.optionChipTextOnColor]}>{opt.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            </>
+          )}
+
+          {step === 1 && (
+            <View style={styles.controlSection}>
+              <Text style={styles.controlTitle}>{t('secMode')}</Text>
+              <View style={styles.modeRow}>
+                {modes.map((m) => (
+                  <TouchableOpacity key={m.id} onPress={() => { hapticSelect(); setSettings((p) => ({ ...p, mode: m.id as GenerationMode })); }} style={[styles.modeBtn, settings.mode === m.id && styles.modeBtnActive]}>
+                    <View style={{flexDirection:'row',alignItems:'center',gap:6}}>
+                      <MaterialIcons name={m.id === 'pronounceable' ? 'record-voice-over' : m.id === 'pattern' ? 'grid-4x4' : m.id === 'acrostic' ? 'auto-awesome' : 'casino'} size={14} color={settings.mode === m.id ? brand.ink : colors.text} />
+                      <Text style={[styles.modeBtnText, settings.mode === m.id && styles.optionChipTextOnColor]}>{m.label}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {step === 2 && (
+            <View style={styles.controlSection}>
+              <Text style={styles.controlTitle}>{t('secSlots')}</Text>
+              <View style={styles.presetRow}>
+                <TouchableOpacity style={[styles.presetBtn, { backgroundColor: colors.surfaceAlt }]} onPress={() => handleApplyPreset('alternating')}>
+                  <Text style={styles.presetBtnText}>{t('presetFlow')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.presetBtn, { backgroundColor: brand.blue }]} onPress={() => handleApplyPreset('melodic')}>
+                  <Text style={[styles.presetBtnText, { color: brand.ink }]}>{t('presetMelodic', { length: settings.length })}</Text>
+                </TouchableOpacity>
+              </View>
+              {settings.slots.length > 0 && (
+                <TouchableOpacity style={styles.clearAllBtn} onPress={() => { hapticLight(); setSettings((p) => ({ ...p, slots: [] })); }}>
+                  <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6}}>
+                    <MaterialIcons name="restart-alt" size={14} color={brand.pink} />
+                    <Text style={styles.clearAllBtnText}>{t('clearAll')}</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.slotsRow}>
+                {Array.from({ length: settings.length }).map((_, idx) => {
+                  const constraint = settings.slots.find((s) => s.index === idx);
+                  const currentType = constraint ? constraint.type : 'any';
+                  const isEditing = editingSlot === idx;
+                  return (
+                    <TouchableOpacity key={idx} onPress={() => { hapticSelect(); setEditingSlot(isEditing ? null : idx); }} style={[styles.slotBox, currentType === 'vowel' && { backgroundColor: brand.yellow }, currentType === 'consonant' && { backgroundColor: brand.blue }, currentType === 'exact' && { backgroundColor: brand.green }, isEditing && styles.slotBoxEditing]}>
+                      <Text style={styles.slotIndex}>#{idx + 1}</Text>
+                      <Text style={[styles.slotType, currentType !== 'any' && styles.slotTypeOnColor]}>{currentType === 'any' ? 'ANY' : currentType === 'vowel' ? 'VOWEL' : currentType === 'consonant' ? 'CONS' : (constraint?.exactChar ?? '?').toUpperCase()}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+              {editingSlot !== null && editingSlot < settings.length && (
+                <View style={styles.slotEditor}>
+                  <View style={styles.slotEditorHeader}>
+                    <Text style={styles.slotEditorTitle}>{t('editorPosition', { index: editingSlot + 1, total: settings.length })}</Text>
+                    <TouchableOpacity onPress={() => setEditingSlot(null)}>
+                      <MaterialIcons name="close" size={16} color={colors.text} />
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.slotRuleRow}>
+                    {([{ id: 'any', label: t('ruleAny') }, { id: 'vowel', label: t('ruleVowel') }, { id: 'consonant', label: t('ruleCons') }] as { id: SlotConstraintType; label: string }[]).map((rule) => {
+                      const active = (settings.slots.find((s) => s.index === editingSlot)?.type ?? 'any') === rule.id;
+                      return (
+                        <TouchableOpacity key={rule.id} style={[styles.slotRuleBtn, active && styles.slotRuleBtnActive]} onPress={() => setSlotRule(editingSlot, rule.id)}>
+                          <Text style={[styles.slotRuleText, active && styles.optionChipTextOnColor]}>{rule.label}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                  <Text style={styles.slotEditorSubtitle}>{t('pinExact')}</Text>
+                  <View style={styles.letterGrid}>
+                    {'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((letter) => {
+                      const slot = settings.slots.find((s) => s.index === editingSlot);
+                      const isExact = slot?.type === 'exact' && slot.exactChar?.toUpperCase() === letter;
+                      return (
+                        <TouchableOpacity key={letter} style={[styles.letterKey, isExact && styles.letterKeyActive]} onPress={() => setSlotRule(editingSlot, 'exact', letter)}>
+                          <Text style={styles.letterKeyText}>{letter}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+              )}
+            </View>
+          )}
+
+          {step === 3 && (
+            <View style={styles.controlSection}>
+              <Text style={styles.controlTitle}>{t('wizReviewTitle')}</Text>
+              <Text style={{fontSize:11,color:colors.subtext,marginBottom:10}}>{t('wizReviewSub')}</Text>
+              <View style={styles.reviewCard}>
+                <View style={styles.reviewRow}>
+                  <MaterialIcons name="straighten" size={15} color={colors.subtext} />
+                  <Text style={styles.reviewLabel}>{t('revLength')}</Text>
+                  <Text style={styles.reviewValue}>{settings.length}</Text>
+                </View>
+                <View style={styles.reviewRow}>
+                  <MaterialIcons name="layers" size={15} color={colors.subtext} />
+                  <Text style={styles.reviewLabel}>{t('revBatch')}</Text>
+                  <Text style={styles.reviewValue}>{settings.batchSize}</Text>
+                </View>
+                <View style={styles.reviewRow}>
+                  <MaterialIcons name="format-size" size={15} color={colors.subtext} />
+                  <Text style={styles.reviewLabel}>{t('revCasing')}</Text>
+                  <Text style={styles.reviewValue}>{settings.casing}</Text>
+                </View>
+                <View style={styles.reviewRow}>
+                  <MaterialIcons name="palette" size={15} color={colors.subtext} />
+                  <Text style={styles.reviewLabel}>{t('revMode')}</Text>
+                  <Text style={styles.reviewValue}>{settings.mode}</Text>
+                </View>
+                <View style={styles.reviewRow}>
+                  <MaterialIcons name="grid-on" size={15} color={colors.subtext} />
+                  <Text style={styles.reviewLabel}>{t('revSlots')}</Text>
+                  <Text style={styles.reviewValue}>{settings.slots.length === 0 ? t('revSlotsNone') : `${settings.slots.length}/${settings.length}`}</Text>
+                </View>
+                <View style={[styles.reviewRow, styles.reviewRowLast]}>
+                  <MaterialIcons name="calculate" size={15} color={colors.subtext} />
+                  <Text style={styles.reviewLabel}>{t('revCombos')}</Text>
+                  <Text style={styles.reviewValue}>{formatLargeNumber(26n ** BigInt(settings.length))}</Text>
+                </View>
+              </View>
+              <TouchableOpacity style={styles.generateBtn} activeOpacity={0.85} onPress={handleGenerate}>
+                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:8}}>
+                  <MaterialIcons name="bolt" size={18} color="#FFFFFF" />
+                  <Text style={styles.generateBtnText}>{setupDirty ? t('wizRegenerate') : t('generateBtn', { n: settings.batchSize })}</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          <View style={styles.wizNavRow}>
+            {step > 0 ? (
+              <TouchableOpacity style={styles.wizBackBtn} onPress={() => goStep(step - 1)}>
+                <View style={{flexDirection:'row',alignItems:'center',gap:4}}>
+                  <MaterialIcons name="arrow-back" size={15} color={colors.text} />
+                  <Text style={styles.wizBackBtnText}>{t('wizBack')}</Text>
+                </View>
+              </TouchableOpacity>
+            ) : <View style={{ flex: 1 }} />}
+            {step < 3 ? (
+              <TouchableOpacity style={styles.wizNextBtn} onPress={() => goStep(step + 1)}>
+                <View style={{flexDirection:'row',alignItems:'center',gap:4}}>
+                  <Text style={styles.wizNextBtnText}>{t('wizNext')}</Text>
+                  <MaterialIcons name="arrow-forward" size={15} color="#FFFFFF" />
+                </View>
+              </TouchableOpacity>
+            ) : <View style={{ flex: 1 }} />}
           </View>
+        </View>
+
+        {!hasGenerated ? (
+          <View style={styles.emptyBox}>
+            <MaterialIcons name="hourglass-empty" size={36} color={colors.subtext} />
+            <Text style={styles.emptyTitle}>{t('wizNotYetTitle')}</Text>
+            <Text style={styles.emptySubtext}>{t('wizNotYetSub')}</Text>
+            <TouchableOpacity style={styles.emptyCta} onPress={() => goStep(3)}>
+              <View style={{flexDirection:'row',alignItems:'center',gap:6}}>
+                <MaterialIcons name="fact-check" size={16} color="#FFFFFF" />
+                <Text style={styles.emptyCtaText}>{t('wizGoReview')}</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
+            {setupDirty && (
+              <View style={styles.changedBanner}>
+                <MaterialIcons name="info" size={15} color={brand.ink} />
+                <Text style={styles.changedBannerText}>{t('wizChanged')}</Text>
+              </View>
+            )}
+            <View style={styles.resultsHeader}>
+              <Text style={styles.resultsCount}>{t('resultsCount', { n: filteredNames.length, len: settings.length })}</Text>
+              <TouchableOpacity style={[styles.copyAllBtn, filteredNames.length === 0 && { opacity: 0.4 }]} disabled={filteredNames.length === 0} onPress={handleCopyAllVisible}>
+                <View style={{flexDirection:'row',alignItems:'center',gap:4}}>
+                  <MaterialIcons name={copiedBatch ? 'check-circle' : 'content-copy'} size={14} color={colors.text} />
+                  <Text style={styles.copyAllBtnText}>{copiedBatch ? t('copiedTick') : t('copyAll')}</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.generateRow}>
+              <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: brand.green }]} activeOpacity={0.85} onPress={handleGenerateMore}>
+                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6}}>
+                  <MaterialIcons name="add" size={16} color={brand.ink} />
+                  <Text style={styles.secondaryBtnText}>{t('nextSet')}</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: '#ffff' }]} activeOpacity={0.85} onPress={handleGenerate}>
+                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6}}>
+                  <MaterialIcons name="refresh" size={16} color={brand.ink} />
+                  <Text style={styles.secondaryBtnText}>{t('reroll')}</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            {filteredNames.length === 0 ? (
+              <View style={styles.emptyBox}>
+                <MaterialIcons name="search" size={36} color={colors.subtext} />
+                <Text style={styles.emptyTitle}>{t('emptyTitle')}</Text>
+                <Text style={styles.emptySubtext}>{t('emptySub')}</Text>
+                <TouchableOpacity style={styles.emptyCta} onPress={handleGenerate}>
+                  <View style={{flexDirection:'row',alignItems:'center',gap:6}}>
+                    <MaterialIcons name="bolt" size={16} color="#FFFFFF" />
+                    <Text style={styles.emptyCtaText}>{t('emptyCta')}</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.namesGrid}>
+                {filteredNames.map((item) => (
+                  <View key={item.id} style={styles.nameCard}>
+                    <View style={styles.cardTopRow}>
+                      <View style={styles.scoreBadge}>
+                        <Text style={styles.scoreText}>{item.pronounceabilityScore}{t('scoreSuffix')}</Text>
+                      </View>
+                      <View style={styles.vowelRatioBadge}>
+                        <Text style={styles.vowelRatioText}>{item.vowelCount}V / {item.consonantCount}C</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.nameWord}>{item.text}</Text>
+                    {item.syllables && item.syllables.length > 1 && (
+                      <Text style={styles.syllablesText}>{item.syllables.join(' * ')}</Text>
+                    )}
+                    {item.embeddedWords && item.embeddedWords.length > 0 && (
+                      <View style={styles.embeddedRow}>
+                        <Text style={styles.embeddedTag}>{t('contains', { words: item.embeddedWords.join(', ') })}</Text>
+                      </View>
+                    )}
+                    <View style={styles.cardActions}>
+                      <TouchableOpacity style={styles.copyBtn} onPress={() => copyToClipboard(item.text)}>
+                        <View style={{flexDirection:'row',alignItems:'center',gap:4}}>
+                          <MaterialIcons name="content-copy" size={14} color={brand.ink} />
+                          <Text style={styles.copyBtnText}>{t('copyBtn')}</Text>
+                        </View>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.actionIconBtn} onPress={() => onSpeak(item)}>
+                        <MaterialIcons name={speakingId === item.id ? 'stop' : 'volume-up'} size={18} color={colors.text} />
+                      </TouchableOpacity>
+                      <TouchableOpacity style={[styles.actionIconBtn, item.isFavorite && styles.favActiveBtn]} onPress={() => onToggleFavorite(item)}>
+                        <MaterialIcons name={item.isFavorite ? 'star' : 'star-border'} size={18} color={item.isFavorite ? '#FFFFFF' : colors.text} />
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.actionIconBtn} onPress={() => openMeaning(item)}>
+                        <MaterialIcons name="auto-awesome" size={18} color={colors.text} />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+          </>
         )}
       </ScrollView>
 
@@ -872,6 +877,8 @@ const createStyles = (c: Palette, bottomInset: number) =>
       alignItems: 'center',
     },
     presetBtnText: { fontSize: 11, fontWeight: '900', color: c.text },
+    clearAllBtn: { borderWidth: 2, borderColor: brand.pink, borderRadius: 8, paddingVertical: 10, alignItems: 'center', marginBottom: 10 },
+    clearAllBtnText: { fontSize: 11, fontWeight: '900', color: brand.pink },
     slotsRow: { gap: 8, paddingVertical: 4 },
     slotBox: {
       width: 54,
@@ -1158,4 +1165,32 @@ const createStyles = (c: Palette, bottomInset: number) =>
       paddingHorizontal: 4,
     },
     fabBadgeText: { color: '#FFFFFF', fontSize: 11, fontWeight: '900' },
+    wizTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+    wizStepOf: { fontSize: 11, fontWeight: '900', color: c.text, letterSpacing: 0.5 },
+    wizDoneBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: brand.green, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10, borderWidth: 1, borderColor: brand.ink },
+    wizDoneBadgeText: { fontSize: 10, fontWeight: '900', color: brand.ink },
+    wizStepsRow: { flexDirection: 'row', gap: 4, marginBottom: 10 },
+    wizStep: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingHorizontal: 6, borderRadius: 8, backgroundColor: c.surfaceAlt, borderWidth: 1, borderColor: c.divider },
+    wizStepActive: { backgroundColor: brand.yellow, borderColor: brand.ink, borderWidth: 2 },
+    wizStepNum: { width: 20, height: 20, borderRadius: 10, backgroundColor: c.surface, borderWidth: 1.5, borderColor: c.text, alignItems: 'center', justifyContent: 'center' },
+    wizStepNumActive: { backgroundColor: brand.ink, borderColor: brand.ink },
+    wizStepNumDone: { backgroundColor: brand.green, borderColor: brand.ink },
+    wizStepNumText: { fontSize: 10, fontWeight: '900', color: c.text },
+    wizStepNumTextActive: { color: '#FFFFFF' },
+    wizStepLabel: { fontSize: 9, fontWeight: '800', color: c.subtext, flexShrink: 1 },
+    wizStepLabelActive: { color: brand.ink },
+    wizProgressTrack: { height: 4, backgroundColor: c.surfaceAlt, borderRadius: 2, marginBottom: 14, borderWidth: 1, borderColor: c.divider },
+    wizProgressBar: { height: '100%', backgroundColor: brand.ink, borderRadius: 2 },
+    wizNavRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
+    wizBackBtn: { backgroundColor: c.surfaceAlt, borderWidth: 2, borderColor: c.text, borderRadius: 10, paddingHorizontal: 16, paddingVertical: 10 },
+    wizBackBtnText: { fontSize: 12, fontWeight: '900', color: c.text },
+    wizNextBtn: { backgroundColor: brand.ink, borderWidth: 2, borderColor: brand.yellow, borderRadius: 10, paddingHorizontal: 16, paddingVertical: 10 },
+    wizNextBtnText: { fontSize: 12, fontWeight: '900', color: '#FFFFFF' },
+    reviewCard: { backgroundColor: c.bg, borderWidth: 2, borderColor: c.text, borderRadius: 10, padding: 10, marginBottom: 12 },
+    reviewRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: c.divider },
+    reviewRowLast: { borderBottomWidth: 0 },
+    reviewLabel: { fontSize: 11, fontWeight: '800', color: c.subtext, flex: 1 },
+    reviewValue: { fontSize: 12, fontWeight: '900', color: c.text },
+    changedBanner: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: brand.yellow, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, borderWidth: 1.5, borderColor: brand.ink, marginBottom: 10 },
+    changedBannerText: { fontSize: 11, fontWeight: '800', color: brand.ink, flex: 1 },
   });

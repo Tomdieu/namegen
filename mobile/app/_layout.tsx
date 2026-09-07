@@ -14,7 +14,7 @@ function ThemedRoot() {
 
   return (
     <>
-      <StatusBar style={colors.statusBarStyle}  />
+      <StatusBar style={"light"} />
       <Stack
         screenOptions={{
           headerShown: false,
@@ -70,7 +70,7 @@ function ThemedRoot() {
             sheetGrabberVisible: true,
             sheetCornerRadius: 16,
             sheetExpandsWhenScrolledToEdge: true,
-            sheetAllowedDetents: 'fitToContents',
+            sheetAllowedDetents: [0.75, 0.9],
           }}
         />
       </Stack>

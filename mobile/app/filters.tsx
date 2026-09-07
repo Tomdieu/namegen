@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useFilters, type SortOption } from '../src/store/filters';
 import { usePreferences } from '../src/store/preferences';
+import { MaterialIcons } from '@expo/vector-icons';
 import { hapticLight, hapticSelect } from '../src/utils/haptics';
 import { brand, type Palette } from '../src/theme';
 
@@ -80,7 +81,7 @@ export default function FiltersScreen() {
             {activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
           </Text>
           <TouchableOpacity onPress={close} style={styles.sheetCloseBtn}>
-            <Text style={styles.sheetCloseText}>✕</Text>
+            <MaterialIcons name="close" size={16} color={colors.text} />
           </TouchableOpacity>
         </View>
 
@@ -166,7 +167,7 @@ export default function FiltersScreen() {
             setOnlyWithWords(!onlyWithWords);
           }}
         >
-          <Text style={styles.wordsToggleBox}>{onlyWithWords ? '☑' : '☐'}</Text>
+          <MaterialIcons name={onlyWithWords ? 'check-box' : 'check-box-outline-blank'} size={20} color={colors.text} />
           <Text style={styles.wordsToggleText}>{t('onlyWords')}</Text>
         </TouchableOpacity>
 
@@ -174,10 +175,16 @@ export default function FiltersScreen() {
 
         <View style={styles.footerRow}>
           <TouchableOpacity style={styles.clearCta} onPress={clearAll}>
-            <Text style={styles.clearCtaText}>{t('clearAll')}</Text>
+            <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6}}>
+              <MaterialIcons name="restart-alt" size={14} color={colors.text} />
+              <Text style={styles.clearCtaText}>{t('clearAll')}</Text>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity style={styles.showCta} onPress={close}>
-            <Text style={styles.showCtaText}>{t('showResults', { n: filtered })}</Text>
+            <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6}}>
+              <MaterialIcons name="visibility" size={14} color="#FFFFFF" />
+              <Text style={styles.showCtaText}>{t('showResults', { n: filtered })}</Text>
+            </View>
           </TouchableOpacity>
         </View>
       </ScrollView>

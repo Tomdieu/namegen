@@ -14,6 +14,7 @@ import * as Clipboard from 'expo-clipboard';
 import { ACROSTIC_MEANINGS } from '../src/data/linguisticData';
 import { useFavorites } from '../src/store/favorites';
 import { usePreferences } from '../src/store/preferences';
+import { MaterialIcons } from '@expo/vector-icons';
 import { hapticLight, hapticSelect, hapticSuccess } from '../src/utils/haptics';
 import { speakText } from '../src/utils/speech';
 import { brand, type Palette } from '../src/theme';
@@ -154,7 +155,7 @@ export default function MeaningScreen() {
             <Text style={styles.badgeBlue}>{t('scoreBadge', { s: score })}</Text>
           </View>
           <TouchableOpacity onPress={close} style={styles.sheetCloseBtn}>
-            <Text style={styles.sheetCloseText}>✕</Text>
+            <MaterialIcons name="close" size={16} color={colors.text} />
           </TouchableOpacity>
         </View>
 
@@ -168,17 +169,23 @@ export default function MeaningScreen() {
             style={[styles.actionBtn, speaking && { backgroundColor: brand.pink }]}
             onPress={listen}
           >
-            <Text style={[styles.actionBtnText, speaking && { color: '#FFFFFF' }]}>
-              {speaking ? t('stopBtn') : t('listenBtn')}
-            </Text>
+            <View style={{flexDirection:'row',alignItems:'center',gap:6}}>
+              <MaterialIcons name={speaking ? 'stop' : 'volume-up'} size={16} color={speaking ? '#FFFFFF' : colors.text} />
+              <Text style={[styles.actionBtnText, speaking && { color: '#FFFFFF' }]}>
+                {speaking ? t('stopBtn') : t('listenBtn')}
+              </Text>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.actionBtn, isFav && { backgroundColor: brand.yellow }]}
             onPress={onToggleFav}
           >
-            <Text style={[styles.actionBtnText, isFav && { color: brand.ink }]}>
-              {isFav ? t('savedBtn') : t('saveBtn')}
-            </Text>
+            <View style={{flexDirection:'row',alignItems:'center',gap:6}}>
+              <MaterialIcons name={isFav ? 'star' : 'star-border'} size={16} color={isFav ? brand.ink : colors.text} />
+              <Text style={[styles.actionBtnText, isFav && { color: brand.ink }]}>
+                {isFav ? t('savedBtn') : t('saveBtn')}
+              </Text>
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -192,7 +199,7 @@ export default function MeaningScreen() {
               <Text style={styles.traitIndex}>{t('letterN', { n: i + 1 })}</Text>
               <Text style={styles.traitWord}>{getLetterTrait(char, i)}</Text>
             </View>
-            <Text style={styles.cycleHint}>🔀</Text>
+            <MaterialIcons name="swap-horiz" size={16} color={colors.subtext} />
           </TouchableOpacity>
         ))}
 
@@ -232,10 +239,16 @@ export default function MeaningScreen() {
 
         <View style={styles.footerRow}>
           <TouchableOpacity style={styles.closeCta} onPress={close}>
-            <Text style={styles.closeCtaText}>{t('closeBtn')}</Text>
+            <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6}}>
+              <MaterialIcons name="close" size={14} color={colors.text} />
+              <Text style={styles.closeCtaText}>{t('closeBtn')}</Text>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity style={styles.copyCta} onPress={copySummary}>
-            <Text style={styles.copyCtaText}>{copied ? t('copiedMeaning') : t('copyMeaning')}</Text>
+            <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6}}>
+              <MaterialIcons name={copied ? 'check-circle' : 'content-copy'} size={14} color="#FFFFFF" />
+              <Text style={styles.copyCtaText}>{copied ? t('copiedMeaning') : t('copyMeaning')}</Text>
+            </View>
           </TouchableOpacity>
         </View>
       </ScrollView>

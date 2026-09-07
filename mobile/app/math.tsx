@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { formatLargeNumber } from '../src/utils/combinatorics';
 import { usePreferences } from '../src/store/preferences';
+import { MaterialIcons } from '@expo/vector-icons';
 import { hapticLight } from '../src/utils/haptics';
 import { brand, type Palette } from '../src/theme';
 
@@ -52,7 +53,7 @@ export default function MathScreen() {
         <View style={styles.sheetTopRow}>
           <View />
           <TouchableOpacity onPress={close} style={styles.sheetCloseBtn}>
-            <Text style={styles.sheetCloseText}>✕</Text>
+            <MaterialIcons name="close" size={16} color={colors.text} />
           </TouchableOpacity>
         </View>
 

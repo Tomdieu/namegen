@@ -16,6 +16,7 @@ import { usePreferences } from '../../src/store/preferences';
 import { hapticLight, hapticSuccess, hapticWarning } from '../../src/utils/haptics';
 import { speakText } from '../../src/utils/speech';
 import { buildCSV, buildTXT, exportAndShare } from '../../src/utils/exporter';
+import { MaterialIcons } from '@expo/vector-icons';
 import { brand, type Palette } from '../../src/theme';
 
 export default function FavoritesScreen() {
@@ -113,19 +114,22 @@ export default function FavoritesScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.screenHeader}>
-        <Text style={styles.screenTitle}>⭐ {t('tabSaved')}</Text>
+        <View style={{flexDirection:'row',alignItems:'center',gap:8}}>
+          <MaterialIcons name="star" size={20} color={brand.ink} />
+          <Text style={styles.screenTitle}>{t('tabSaved')}</Text>
+        </View>
         <Text style={styles.countLabel}>{countLabel}</Text>
       </View>
 
       {toastMessage && (
         <View style={styles.toast}>
-          <Text style={styles.toastText}>✓ {toastMessage}</Text>
+          <Text style={styles.toastText}>{toastMessage}</Text>
         </View>
       )}
 
       {favorites.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyEmoji}>⭐</Text>
+          <MaterialIcons name="star-border" size={48} color={colors.subtext} />
           <Text style={styles.emptyText}>{t('favEmptyTitle')}</Text>
           <Text style={styles.emptySubtext}>{t('favEmptySub')}</Text>
           <TouchableOpacity
@@ -176,14 +180,22 @@ export default function FavoritesScreen() {
                   <Text style={styles.favoriteMeta}>
                     {t('metaLine', { len: fav.length, score: fav.pronounceabilityScore })}
                   </Text>
-                  {fav.notes ? <Text style={styles.favoriteNotes}>📝 {fav.notes}</Text> : null}
+                  {fav.notes ? (
+                    <View style={{flexDirection:'row',alignItems:'center',gap:4}}>
+                      <MaterialIcons name="edit-note" size={14} color={colors.subtext} />
+                      <Text style={styles.favoriteNotes}>{fav.notes}</Text>
+                    </View>
+                  ) : null}
                 </View>
                 <View style={styles.favoriteActions}>
                   <TouchableOpacity
                     style={styles.favSmallBtn}
                     onPress={() => copyToClipboard(fav.text)}
                   >
-                    <Text style={styles.favSmallBtnText}>{t('favCopy')}</Text>
+                    <View style={{flexDirection:'row',alignItems:'center',gap:4}}>
+                      <MaterialIcons name="content-copy" size={12} color={brand.ink} />
+                      <Text style={styles.favSmallBtnText}>{t('favCopy')}</Text>
+                    </View>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.favSmallBtn}
@@ -192,7 +204,7 @@ export default function FavoritesScreen() {
                       speakText(fav.text);
                     }}
                   >
-                    <Text style={styles.favSmallBtnText}>🔊</Text>
+                    <MaterialIcons name="volume-up" size={16} color={brand.ink} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.favSmallBtn, { backgroundColor: brand.pink }]}
@@ -202,9 +214,10 @@ export default function FavoritesScreen() {
                       showToast(t('toastFavRemoved'));
                     }}
                   >
-                    <Text style={[styles.favSmallBtnText, { color: '#FFFFFF' }]}>
-                      {t('favRemove')}
-                    </Text>
+                    <View style={{flexDirection:'row',alignItems:'center',gap:4}}>
+                      <MaterialIcons name="delete-outline" size={14} color="#FFFFFF" />
+                      <Text style={[styles.favSmallBtnText, { color: '#FFFFFF' }]}>{t('favRemove')}</Text>
+                    </View>
                   </TouchableOpacity>
                 </View>
               </View>
