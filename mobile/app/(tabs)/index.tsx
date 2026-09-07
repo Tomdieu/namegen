@@ -100,6 +100,7 @@ export default function HomeScreen() {
     setNames(enrichWithFavorites(generated));
     setHasGenerated(true);
     setGeneratedFingerprint(setupFingerprint);
+    setTimeout(() => scrollRef.current?.scrollTo({ y: 0, animated: true }), 100);
   };
 
   const handleGenerateMore = () => {
@@ -113,6 +114,7 @@ export default function HomeScreen() {
       );
       return [...prev, ...enrichWithFavorites(fresh.length > 0 ? fresh : generated)];
     });
+    setTimeout(() => scrollRef.current?.scrollTo({ y: 0, animated: true }), 100);
   };
 
   const updateLength = (len: number) => {
