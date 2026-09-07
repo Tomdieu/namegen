@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  LayoutChangeEvent,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -53,6 +54,9 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => createStyles(colors, insets.bottom), [colors, insets.bottom]);
   const scrollRef = useRef<ScrollView>(null);
+  const resultsRef = useRef<View>(null);
+  const [resultsY, setResultsY] = useState(0);
+  const [shouldScrollToResults, setShouldScrollToResults] = useState(false);
 
   const [settings, setSettings] = useState<GenerationSettings>(DEFAULT_SETTINGS);
 
@@ -100,7 +104,7 @@ export default function HomeScreen() {
     setNames(enrichWithFavorites(generated));
     setHasGenerated(true);
     setGeneratedFingerprint(setupFingerprint);
-    setTimeout(() => scrollRef.current?.scrollTo({ y: 0, animated: true }), 100);
+    setShouldScrollToResults(true);
   };
 
   const handleGenerateMore = () => {
@@ -114,7 +118,7 @@ export default function HomeScreen() {
       );
       return [...prev, ...enrichWithFavorites(fresh.length > 0 ? fresh : generated)];
     });
-    setTimeout(() => scrollRef.current?.scrollTo({ y: 0, animated: true }), 100);
+    setShouldScrollToResults(true);
   };
 
   const updateLength = (len: number) => {
@@ -301,6 +305,17 @@ export default function HomeScreen() {
     hapticSelect();
     setStep(Math.max(0, Math.min(3, next)));
   };
+
+  const onResultsLayout = useCallback((e: LayoutChangeEvent) => {
+    setResultsY(e.nativeEvent.layout.y);
+  }, []);
+
+  useEffect(() => {
+    if (shouldScrollToResults && resultsY > 0) {
+      setShouldScrollToResults(false);
+      setTimeout(() => scrollRef.current?.scrollTo({ y: resultsY - 8, animated: true }), 120);
+    }
+  }, [shouldScrollToResults, resultsY, names]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -605,7 +620,7 @@ export default function HomeScreen() {
                 <Text style={styles.changedBannerText}>{t('wizChanged')}</Text>
               </View>
             )}
-            <View style={styles.resultsHeader}>
+            <View ref={resultsRef} onLayout={onResultsLayout} style={styles.resultsHeader}>
               <Text style={styles.resultsCount}>{t('resultsCount', { n: filteredNames.length, len: settings.length })}</Text>
               <TouchableOpacity style={[styles.copyAllBtn, filteredNames.length === 0 && { opacity: 0.4 }]} disabled={filteredNames.length === 0} onPress={handleCopyAllVisible}>
                 <View style={{flexDirection:'row',alignItems:'center',gap:4}}>
