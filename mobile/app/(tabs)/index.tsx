@@ -612,20 +612,6 @@ export default function HomeScreen() {
                 </View>
               </TouchableOpacity>
             </View>
-            <View style={styles.generateRow}>
-              <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: brand.green }]} activeOpacity={0.85} onPress={handleGenerateMore}>
-                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6}}>
-                  <MaterialIcons name="add" size={16} color={brand.ink} />
-                  <Text style={styles.secondaryBtnText}>{t('nextSet')}</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: '#ffff' }]} activeOpacity={0.85} onPress={handleGenerate}>
-                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6}}>
-                  <MaterialIcons name="refresh" size={16} color={brand.ink} />
-                  <Text style={styles.secondaryBtnText}>{t('reroll')}</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
             {filteredNames.length === 0 ? (
               <View style={styles.emptyBox}>
                 <MaterialIcons name="search" size={36} color={colors.subtext} />
@@ -680,6 +666,20 @@ export default function HomeScreen() {
                 ))}
               </View>
             )}
+            <View style={styles.generateRow}>
+              <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: brand.green }]} activeOpacity={0.85} onPress={handleGenerateMore}>
+                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6}}>
+                  <MaterialIcons name="add" size={16} color={brand.ink} />
+                  <Text style={styles.secondaryBtnText}>{t('nextSet')}</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: '#ffff' }]} activeOpacity={0.85} onPress={handleGenerate}>
+                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6}}>
+                  <MaterialIcons name="refresh" size={16} color={brand.ink} />
+                  <Text style={styles.secondaryBtnText}>{t('reroll')}</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
           </>
         )}
       </ScrollView>
