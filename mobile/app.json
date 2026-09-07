@@ -30,7 +30,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tomdieu.namegen"
     },
     "android": {
       "package": "com.tomdieu.namegen",
