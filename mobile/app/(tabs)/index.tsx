@@ -385,12 +385,12 @@ export default function HomeScreen() {
               </View>
             )}
           </View>
-          <View style={styles.wizStepsRow}>
+          <ScrollView horizontal style={styles.wizStepsRow}>
             {wizardSteps.map((s, i) => {
               const active = i === step;
               const done = hasGenerated || i < step;
               return (
-                <TouchableOpacity key={s.label} style={[styles.wizStep, active && styles.wizStepActive]} onPress={() => goStep(i)}>
+                <TouchableOpacity key={s.label} style={[styles.wizStep, active && styles.wizStepActive,i%2===0&&{marginHorizontal:4}]} onPress={() => goStep(i)}>
                   <View style={[styles.wizStepNum, active && styles.wizStepNumActive, !active && done && styles.wizStepNumDone]}>
                     {done && !active ? <MaterialIcons name="check" size={12} color={brand.ink} /> : <Text style={[styles.wizStepNumText, active && styles.wizStepNumTextActive]}>{i + 1}</Text>}
                   </View>
@@ -399,7 +399,7 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               );
             })}
-          </View>
+          </ScrollView>
           <View style={styles.wizProgressTrack}>
             <View style={[styles.wizProgressBar, { width: `${((step + 1) / 4) * 100}%` }]} />
           </View>
@@ -1164,10 +1164,10 @@ const createStyles = (c: Palette, bottomInset: number) =>
       shadowRadius: 4,
     },
     filterFab: {
-      bottom: bottomInset + 10,
+      bottom: 10,
     },
     topFab: {
-      bottom: bottomInset + 70,
+      bottom: 70,
     },
     fabBadge: {
       position: 'absolute',
