@@ -21,7 +21,7 @@
       [
         "expo-status-bar",
         {
-          "style": "dark",
+          "style": "light",
           "hidden": false
         }
       ]
