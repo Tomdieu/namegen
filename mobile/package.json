@@ -4,8 +4,8 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
@@ -30,7 +30,8 @@
     "react-native": "0.86.3",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
-    "react-native-web": "^0.21.2"
+    "react-native-web": "^0.21.2",
+    "react-native-worklets": "^0.10.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -40,5 +41,20 @@
   "overrides": {
     "react-dom": "19.2.3"
   },
-  "private": true
+  "private": true,
+  "engines": {
+    "node": ">=20 <25",
+    "npm": ">=10 <12"
+  },
+  "allowScripts": {
+    "sharp": true,
+    "expo": true,
+    "core-js": true,
+    "unrs-resolver": true,
+    "msgpackr-extract": true,
+    "lmdb": true,
+    "react-native-worklets": true,
+    "@react-native-async-storage/async-storage": true,
+    "protobufjs": true
+  }
 }
