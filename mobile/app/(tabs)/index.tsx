@@ -61,11 +61,6 @@ export default function HomeScreen() {
   const [speakingId, setSpeakingId] = useState<string | null>(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [editingSlot, setEditingSlot] = useState<number | null>(null);
-  // Guided setup flow: nothing is generated until the user completes the
-  // steps and taps Generate. Results stay hidden before the first run.
-  const [step, setStep] = useState(0);
-  const [hasGenerated, setHasGenerated] = useState(false);
-  const [generatedFingerprint, setGeneratedFingerprint] = useState<string | null>(null);
 
   const {
     searchTerm,
@@ -95,31 +90,15 @@ export default function HomeScreen() {
   const enrichWithFavorites = (generated: GeneratedName[]) =>
     generated.map((g) => ({ ...g, isFavorite: isFavorite(g.text) }));
 
-  // Fingerprint of the setup that affects output. Used to detect edits made
-  // after a set was generated so we can ask for an explicit regenerate
-  // instead of silently changing results.
-  const setupFingerprint = useMemo(() => {
-    const slotsSig = settings.slots
-      .map((s) => `${s.index}:${s.type}:${s.exactChar ?? ''}`)
-      .sort()
-      .join(',');
-    return `${settings.length}|${settings.batchSize}|${settings.mode}|${settings.casing}|${slotsSig}`;
-  }, [settings.length, settings.batchSize, settings.mode, settings.casing, settings.slots]);
-
-  const setupDirty = hasGenerated && generatedFingerprint !== setupFingerprint;
-
   const handleGenerate = () => {
     hapticMedium();
     const generated = generateNamesBatch(settings);
     setNames(enrichWithFavorites(generated));
-    setHasGenerated(true);
-    setGeneratedFingerprint(setupFingerprint);
   };
 
   const handleGenerateMore = () => {
     hapticMedium();
     const generated = generateNamesBatch(settings);
-    setGeneratedFingerprint(setupFingerprint);
     setNames((prev) => {
       const seen = new Set(prev.map((n) => n.text.toUpperCase()));
       const fresh = generated.filter((g) => !seen.has(g.text.toUpperCase()));
@@ -130,10 +109,9 @@ export default function HomeScreen() {
     });
   };
 
-  const goStep = (next: number) => {
-    hapticLight();
-    setStep(Math.min(3, Math.max(0, next)));
-  };
+  useEffect(() => {
+    handleGenerate();
+  }, [settings.length, settings.mode, settings.casing]);
 
   const updateLength = (len: number) => {
     const clamped = Math.min(26, Math.max(3, len));
@@ -170,10 +148,6 @@ export default function HomeScreen() {
     setSettings(DEFAULT_SETTINGS);
     setEditingSlot(null);
     resetFilters();
-    setStep(0);
-    setNames([]);
-    setHasGenerated(false);
-    setGeneratedFingerprint(null);
     showToast(t('toastReset'));
   };
 
@@ -297,21 +271,11 @@ export default function HomeScreen() {
   };
 
   const modes = [
-    { id: 'pronounceable', label: t('modePronounceable'), icon: 'record-voice-over' as const },
-    { id: 'pattern', label: t('modePattern'), icon: 'text-fields' as const },
-    { id: 'acrostic', label: t('modeAcrostic'), icon: 'auto-awesome' as const },
-    { id: 'pure_random', label: t('modeRandom'), icon: 'casino' as const },
+    { id: 'pronounceable', label: t('modePronounceable') },
+    { id: 'pattern', label: t('modePattern') },
+    { id: 'acrostic', label: t('modeAcrostic') },
+    { id: 'pure_random', label: t('modeRandom') },
   ];
-
-  const wizardSteps = [
-    { label: t('wizBasics'), desc: t('wizBasicsDesc'), icon: 'list' as const },
-    { label: t('wizStyle'), desc: t('wizStyleDesc'), icon: 'palette' as const },
-    { label: t('wizSlots'), desc: t('wizSlotsDesc'), icon: 'grid-on' as const },
-    { label: t('wizReview'), desc: t('wizReviewDesc'), icon: 'fact-check' as const },
-  ];
-
-  const activeModeLabel = modes.find((m) => m.id === settings.mode)?.label ?? settings.mode;
-  const casingLabel = CASINGS.find((c) => c.id === settings.casing)?.label ?? settings.casing;
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -333,7 +297,7 @@ export default function HomeScreen() {
             }}
           >
             <View style={{flexDirection:"row",alignItems:"center"}}>
-              <MaterialIcons name="star" size={14} color={brand.ink} />
+              <MaterialIcons name='star' />
             <Text style={styles.headerBtnText}> {favorites.length}</Text>
             </View>
           </TouchableOpacity>
@@ -347,7 +311,7 @@ export default function HomeScreen() {
             style={[styles.headerBtn, { backgroundColor: colors.surfaceAlt }]}
             onPress={handleReset}
           >
-            <MaterialIcons name="refresh" size={16} color={colors.text} />
+            <Text style={[styles.headerBtnText, { color: colors.text }]}>↺</Text>
 
           </TouchableOpacity>
         </View>
@@ -355,10 +319,7 @@ export default function HomeScreen() {
 
       {toastMessage && (
         <View style={styles.toast}>
-          <View style={styles.toastRow}>
-            <MaterialIcons name="check-circle" size={14} color={brand.green} />
-            <Text style={styles.toastText}>{toastMessage}</Text>
-          </View>
+          <Text style={styles.toastText}>✓ {toastMessage}</Text>
         </View>
       )}
 
@@ -1177,10 +1138,10 @@ const createStyles = (c: Palette, bottomInset: number) =>
       shadowRadius: 4,
     },
     filterFab: {
-      bottom: 10,
+      bottom: bottomInset + 10,
     },
     topFab: {
-      bottom: 70,
+      bottom: bottomInset + 70,
     },
     fabBadge: {
       position: 'absolute',

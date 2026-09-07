@@ -42,16 +42,6 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "extra": {
-      "router": {},
-      "expo-status-bar": {
-        "style": "dark",
-        "hidden": false
-      },
-      "eas": {
-        "projectId": "a4d0b490-06f3-4139-b83d-caef4fcfa524"
-      }
     }
   }
 }
